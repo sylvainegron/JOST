@@ -8,7 +8,6 @@ import numpy as np
 import zzdde_SylvainVersion as pzz
 #import zdde as pzz
 
-
 def IM_CEN(field_vector,actuator_value,alignment_state):
     #nbr_zernikes is the number of zernikes calculated started with Z4
     nb_FoV=np.size(field_vector)/2
