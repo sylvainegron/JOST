@@ -30,7 +30,6 @@ import z_alignment_functions as Zalign
 import result_analysis_functions as result
 import CEN_functions as CEN
 
-#testes
 #Definition of the properties of the system: 
 with open('Z:\\Testbeds\\JOST\\Alignment\\data\\date_for_python.txt', 'r') as pf:
     Date_ = np.loadtxt(pf)
