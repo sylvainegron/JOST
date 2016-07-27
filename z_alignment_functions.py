@@ -77,13 +77,22 @@ def LS_reconstruction_on_vectors(cond_val,IM,measure_vect,residual_vect):
     
     
 ###################################################################################################################    
-def set_field_on_zemax(link,field_vector,field_index,):
+def set_field_on_zemax(link,field_vector,field_index):
     #field_vector must be in degrees
     link.zSetSurfaceParameter(9, 4, -field_vector[2*field_index]/2.)
     link.zSetSurfaceParameter(9, 3, -field_vector[2*field_index+1]/2.)
     
     return    
     
+####################################################################################################################
+def reset_positions_on_zemax(link):
+    link.zSetSurfaceParameter(9, 4, 0)
+    link.zSetSurfaceParameter(9, 3, 0)    
+    link.zSetSurfaceData(18, 3, 0 )
+    link.zSetSurfaceData(24, 3, 0 )  
+    link.zSetSurfaceData(31, 3, 0 ) 
+    link.zSetSurfaceData(39, 3, 0 ) 
+    return   
 ####################################################################################################################
 def IM_on_vectors(field_vector,actuator_value,alignment_state,nbr_zernikes):
     #nbr_zernikes is the number of zernikes calculated started with Z4
@@ -99,9 +108,8 @@ def IM_on_vectors(field_vector,actuator_value,alignment_state,nbr_zernikes):
         # get the wavelenght
         wavesTuple = link.zGetWaveTuple()
         wave = wavesTuple[0][0] * 1000.0 # unit: lambda <-> nm
-        link.zSetSurfaceParameter(9, 4, -field_vector[2*ind]/1000./2.)
-        link.zSetSurfaceParameter(9, 3, -field_vector[2*ind+1]/1000./2.)
-
+        
+        set_field_on_zemax(link,field_vector,ind)
 
         #divide by 1000 because we work with milidegrees in the text file
         #divide by two, because we have to put the half field on the surface coord breaf, for more information 
@@ -163,8 +171,7 @@ def IM_on_vectors(field_vector,actuator_value,alignment_state,nbr_zernikes):
         IM[ind*nbr_zernikes:(ind+1)*nbr_zernikes,3] = coefZern_IM[3:nbr_zernikes+3]  
         
         
-        link.zSetSurfaceParameter(9, 3, 0)
-        link.zSetSurfaceParameter(9, 4, 0)
+        reset_positions_on_zemax(link)
         
         # close the DDE link
         status = link.zDDEClose()
@@ -187,42 +194,30 @@ def Simulated_Wavefront_Zalignment_on_vector(field_vector,alignment_state,nbr_ze
         # get the wavelenght
         wavesTuple = link.zGetWaveTuple()
         wave = wavesTuple[0][0] * 1000.0 # unit: lambda <-> nm
-        link.zSetSurfaceParameter(9, 4, -field_vector[2*ind]/1000./2.)
-        link.zSetSurfaceParameter(9, 3, -field_vector[2*ind+1]/1000./2.)   
+        
+        set_field_on_zemax(link,field_vector,ind)
     
-        # get the wavelenght
-        wavesTuple = link.zGetWaveTuple()
-        wave = wavesTuple[0][0] * 1000.0 # unit: lambda <-> nm
-        
-        ########################################################################################################
-        # Mov the the elements
-        
+        ########################################################################################################       
         # Move the elements   
         link.zSetSurfaceData(18, 3, alignment_state[0] )
         link.zSetSurfaceData(24, 3, alignment_state[1])  
         link.zSetSurfaceData(31, 3, alignment_state[2]) 
         link.zSetSurfaceData(39, 3, alignment_state[3])         
        
-       #Get the Wavefront
+        #Get the Wavefront
         coefZern = link.zGetZernikeCoef(Zmax=153)
           
-        # Matrix filling
+        # Vector filling
         wf_simulation[ind*nbr_zernikes:(ind+1)*nbr_zernikes]=coefZern[3:nbr_zernikes+3]
-    
-        #Reset positions      
-        link.zSetSurfaceParameter(9, 4, 0)
-        link.zSetSurfaceParameter(9, 3, 0)    
-        link.zSetSurfaceData(18, 3, 0 )
-        link.zSetSurfaceData(24, 3, 0 )  
-        link.zSetSurfaceData(31, 3, 0 ) 
-        link.zSetSurfaceData(39, 3, 0 ) 
+        
+        #reset position
+        reset_positions_on_zemax(link) 
         
         # close the DDE link
         status = link.zDDEClose()
     
     wf_simulation=wf_simulation*wave
 
-        
     return wf_simulation
     
 ###################################################################################################################
