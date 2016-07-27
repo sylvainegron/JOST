@@ -75,6 +75,15 @@ def LS_reconstruction_on_vectors(cond_val,IM,measure_vect,residual_vect):
     
     return misalignment_LS 
     
+    
+###################################################################################################################    
+def set_field_on_zemax(link,field_vector,field_index,):
+    #field_vector must be in degrees
+    link.zSetSurfaceParameter(9, 4, -field_vector[2*field_index]/2.)
+    link.zSetSurfaceParameter(9, 3, -field_vector[2*field_index+1]/2.)
+    
+    return    
+    
 ####################################################################################################################
 def IM_on_vectors(field_vector,actuator_value,alignment_state,nbr_zernikes):
     #nbr_zernikes is the number of zernikes calculated started with Z4
